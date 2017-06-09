@@ -477,8 +477,8 @@ static void debug_work_func(struct work_struct *work)
 			|| data->batchLatencyBuf[uSensorCnt])
 			print_sensordata(data, uSensorCnt);
 
-    if(data->resetting)
-        goto exit;
+	if (data->resetting)
+		goto exit;
 
 	if (((atomic64_read(&data->aSensorEnable) & (1 << ACCELEROMETER_SENSOR))
         && (data->batchLatencyBuf[ACCELEROMETER_SENSOR] == 0)
