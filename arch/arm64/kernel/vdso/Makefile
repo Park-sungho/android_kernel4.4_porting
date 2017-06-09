@@ -5,6 +5,13 @@
 # Heavily based on the vDSO Makefiles for other archs.
 #
 
+# daveti: kasan as well
+KASAN_SANITIZE			:= n
+
+# Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
+KCOV_INSTRUMENT		:= n
+
+
 obj-vdso := gettimeofday.o note.o sigreturn.o
 
 # Build rules
