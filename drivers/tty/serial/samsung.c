@@ -1740,6 +1740,12 @@ static ssize_t s3c24xx_serial_bt_log(struct file *file, char __user *userbuf, si
 
 #ifdef CONFIG_CPU_IDLE
 static int s3c24xx_serial_notifier(struct notifier_block *self,
+				unsigned long cmd, void *v);
+static struct notifier_block s3c24xx_serial_notifier_block = {
+	.notifier_call = s3c24xx_serial_notifier,
+};
+
+static int s3c24xx_serial_notifier(struct notifier_block *self,
 				unsigned long cmd, void *v)
 {
 	struct s3c24xx_uart_port *ourport;
@@ -1808,10 +1814,6 @@ static int s3c24xx_serial_notifier(struct notifier_block *self,
 
 	return NOTIFY_DONE;
 }
-
-static struct notifier_block s3c24xx_serial_notifier_block = {
-	.notifier_call = s3c24xx_serial_notifier,
-};
 #endif
 
 static int s3c24xx_serial_probe(struct platform_device *pdev)
