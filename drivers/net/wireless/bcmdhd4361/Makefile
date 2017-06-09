@@ -25,6 +25,7 @@
 # bcmdhd
 
 # daveti: avoid -Werror=frame-larger-than=(2k)
+KASAN_SANITIZE_dhd_linux.o := n
 KCOV_INSTRUMENT_dhd_linux.o := n
 
 #####################

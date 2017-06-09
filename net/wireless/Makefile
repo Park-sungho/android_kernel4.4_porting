@@ -1,4 +1,5 @@
 # daveti: avoid -Werror=frame-larger-than= (2k)
+KASAN_SANITIZE_nl80211.o := n
 KCOV_INSTRUMENT_nl80211.o := n
 
 obj-$(CONFIG_CFG80211) += cfg80211.o
