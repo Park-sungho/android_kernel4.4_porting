@@ -1657,6 +1657,12 @@ void s3c24xx_serial_fifo_wait(void)
 EXPORT_SYMBOL_GPL(s3c24xx_serial_fifo_wait);
 
 #ifdef BT_UART_TRACE
+static ssize_t s3c24xx_serial_bt_log(struct file *file, char __user *userbuf, size_t bytes, loff_t *off);
+static const struct file_operations proc_fops_btlog = {
+	.owner = THIS_MODULE,
+	.read = s3c24xx_serial_bt_log,
+};
+
 static void s3c24xx_print_reg_status(struct s3c24xx_uart_port *ourport)
 {
 	if (ourport->port.line == BLUETOOTH_UART_PORT_LINE) {
@@ -1729,10 +1735,6 @@ static ssize_t s3c24xx_serial_bt_log(struct file *file, char __user *userbuf, si
 
 	return 0;
 }
-static const struct file_operations proc_fops_btlog = {
-	.owner = THIS_MODULE,
-	.read = s3c24xx_serial_bt_log,
-};
 #endif
 
 
