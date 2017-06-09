@@ -2,6 +2,10 @@
 # Exynos HDCP drivers
 #
 
+# daveti: reduce the stack frame size
+KASAN_SANITIZE_exynos-hdcp2.o := n
+KCOV_INSTRUMENT_exynos-hdcp2.o := n
+
 # HDCP
 obj-$(CONFIG_EXYNOS_HDCP2)	+= exynos-hdcp2-tx-auth.o
 obj-$(CONFIG_EXYNOS_HDCP2)	+= exynos-hdcp2-tx-session.o
