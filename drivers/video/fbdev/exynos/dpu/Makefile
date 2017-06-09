@@ -5,6 +5,10 @@
 # Licensed under GPLv2
 #
 
+# daveti: reduce the stack frame usage
+KASAN_SANITIZE_decon_core.o := n
+KCOV_INSTRUMENT_decon_core.o := n
+
 obj-$(CONFIG_EXYNOS_DPP) += dpp.o
 dpp-y := dpp_drv.o
 obj-$(CONFIG_EXYNOS_MIPI_DSIM) += dsim.o
