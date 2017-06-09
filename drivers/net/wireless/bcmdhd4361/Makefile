@@ -23,6 +23,10 @@
 # <<Broadcom-WL-IPTag/Open:>>
 #
 # bcmdhd
+
+# daveti: avoid -Werror=frame-larger-than=(2k)
+KCOV_INSTRUMENT_dhd_linux.o := n
+
 #####################
 # Basic feature
 #####################
