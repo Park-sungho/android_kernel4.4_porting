@@ -36,6 +36,9 @@
 static int debug;
 module_param(debug, int, 0644);
 
+/* Support for Dual Mode */
+// #define DUAL_SUB_CAM_DRV
+
 #define S5K4ECGX_DRIVER_NAME		"s5k4ecgx"
 #define S5K4ECGX_FIRMWARE		"s5k4ecgx.bin"
 
@@ -116,6 +119,10 @@ module_param(debug, int, 0644);
 #define REG_CMDRD_ADDRH			0x002c
 #define REG_CMDRD_ADDRL			0x002e
 #define REG_CMDBUF0_ADDR		0x0f12
+
+#ifdef DUAL_SUB_CAM_DRV
+static struct i2c_client *g_sub_i2c_client = NULL;
+#endif
 
 struct s5k4ecgx_frmsize {
 	struct v4l2_frmsize_discrete size;
@@ -238,6 +245,22 @@ static int s5k4ecgx_i2c_write(struct i2c_client *client, u16 addr, u16 val)
 }
 
 static int s5k4ecgx_write(struct i2c_client *client, u32 addr, u16 val)
+{
+	u16 high = addr >> 16, low = addr & 0xffff;
+	int ret;
+
+	v4l2_dbg(3, debug, client, "write: 0x%08x : 0x%04x\n", addr, val);
+
+	ret = s5k4ecgx_i2c_write(client, REG_CMDWR_ADDRH, high);
+	if (!ret)
+		ret = s5k4ecgx_i2c_write(client, REG_CMDWR_ADDRL, low);
+	if (!ret)
+		ret = s5k4ecgx_i2c_write(client, REG_CMDBUF0_ADDR, val);
+
+	return ret;
+}
+
+static int s5k4ecgx_sub_cam_write(struct i2c_client *client, u32 addr, u16 val)
 {
 	u16 high = addr >> 16, low = addr & 0xffff;
 	int ret;
@@ -794,9 +817,19 @@ static int __s5k4ecgx_s_params(struct s5k4ecgx *priv)
 
 static int __s5k4ecgx_s_stream(struct s5k4ecgx *priv, int on)
 {
-	struct i2c_client *client = v4l2_get_subdevdata(&priv->sd);
-	int ret;
-
+    struct i2c_client *client = v4l2_get_subdevdata(&priv->sd);
+#ifdef DUAL_SUB_CAM_DRV
+    struct s5k4ecgx *priv = to_s5k4ecgx(sd);
+#endif
+    int ret;
+	
+#ifdef DUAL_SUB_CAM_DRV
+    if (priv->curr_frmsize->size.width == SUB_CAM_FIX_WIDTH
+        && priv->curr_frmsize->size.width == SUB_CAM_FIX_HEIGHT) {
+	ret = s5k4ecgx_sub_cam_write(g_sub_i2c_client, REG_G_ENABLE_PREV, on);
+    } else 
+#endif
+    {
 	if (on && priv->set_params) {
 		ret = __s5k4ecgx_s_params(priv);
 		if (ret < 0)
@@ -810,7 +843,10 @@ static int __s5k4ecgx_s_stream(struct s5k4ecgx *priv, int on)
 	ret = s5k4ecgx_write(client, REG_G_ENABLE_PREV, on);
 	if (ret < 0)
 		return ret;
-	return s5k4ecgx_write(client, REG_G_ENABLE_PREV_CHG, 1);
+	ret = s5k4ecgx_write(client, REG_G_ENABLE_PREV_CHG, 1);	
+    }
+
+    return ret;
 }
 
 static int s5k4ecgx_s_stream(struct v4l2_subdev *sd, int on)
@@ -1028,6 +1064,67 @@ static struct i2c_driver v4l2_i2c_driver = {
 };
 
 module_i2c_driver(v4l2_i2c_driver);
+
+#ifdef DUAL_SUB_CAM_DRV
+static int v4l2_sub_cam_probe(struct i2c_client *client, const struct i2c_device_id *id)
+{
+   struct s5k4ec_state *s5k4ec_state;
+
+   g_sub_i2c_client = client;
+
+   gpio_set_value(priv->gpio_sub[id].gpio_sel, val);
+   gpio_set_value(priv->gpio_sub[id].gpio_power, val);
+   gpio_set_value(priv->gpio_sub[id].gpio_reset, val);
+
+   v4l2_dbg(sd, "%s\n", __func__);
+   return 0;
+}
+
+
+static int v4l2_sub_cam_remove(struct i2c_client *client)
+{
+   return 0;
+}
+
+
+static const struct of_device_id v4l2_sub_cam_of_match[] = {
+	{.compatible = "reo,v4l2_sub_cam", },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, v4l2_sub_cam_of_match);
+
+static const struct i2c_device_id v4l2_sub_cam_id[] = 
+{
+   { "v4l2_sub_cam",   0},
+   {}
+};
+MODULE_DEVICE_TABLE(i2c, hv4l2_sub_cam_id);
+
+static struct i2c_driver v4l2_sub_cam_driver =
+{
+	.driver = {
+		.name = "v4l2_sub_cam",
+		.of_match_table = of_match_ptr(v4l2_sub_cam_of_match),
+	},
+	.probe = v4l2_sub_cam_probe,
+   	.remove = v4l2_sub_cam_remove,
+   	.id_table = v4l2_sub_cam_id,
+};
+
+static int __init v4l2_sub_cam_init(void)
+{
+   return i2c_add_driver(&v4l2_sub_cam_driver);
+}
+
+static void __exit v4l2_sub_cam_exit(void)
+{
+   i2c_del_driver(&v4l2_sub_cam_driver);
+}
+
+//late_initcall(v4l2_sub_cam_init);
+module_init(v4l2_sub_cam_init);
+module_exit(v4l2_sub_cam_exit);
+#endif
 
 MODULE_DESCRIPTION("Samsung S5K4ECGX 5MP SOC camera");
 MODULE_AUTHOR("Sangwook Lee <sangwook.lee@linaro.org>");
