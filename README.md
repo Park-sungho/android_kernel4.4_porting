@@ -1,3 +1,15 @@
+Source from Samsung Open Source : http://opensource.samsung.com/reception.do
+Reference site: https://github.com/daveti/samsung-android-kernel-4-4
+
+################################################################################
+Linux kernel 4.4
+
+Bring up Device Drivers
+Park-sungho
+
+################################################################################
+
+################################################################################
 Samsung Android/Linux kernel 4.4
 
 Extracted from SM-G950F_NN_Opensource.zip from Samsung Opensource center
