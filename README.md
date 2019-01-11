@@ -8,6 +8,9 @@ Bring up Device Drivers
 Park-sungho
 
 ################################################################################
+        - to Build
+          $ make ARCH=arm64 exynos8895-reo_open_project_defconfig
+          $ make ARCH=arm64
 
 ################################################################################
 Samsung Android/Linux kernel 4.4
