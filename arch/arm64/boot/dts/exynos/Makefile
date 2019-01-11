@@ -8,7 +8,7 @@ dtb-$(CONFIG_SOC_EXYNOS8895) += exynos8895-universal8895_d1_rev00.dtb
 dtb-$(CONFIG_SOC_EXYNOS8895) += exynos8895-universal8895_d2_rev00.dtb
 dtb-$(CONFIG_SOC_EMULATOR8895) += emulator8895-emulator8895.dtb
 dtb-$(CONFIG_SOC_EXYNOS8895) += exynos8895-universal8895_d1_rev01.dtb
-dtb-$(CONFIG_SOC_EXYNOS8895) += exynos8895-exynos8895-reo_open_common_rev00.dtb
+dtb-$(CONFIG_SOC_EXYNOS8895) += exynos8895-reo_open_common_rev00.dtb
 
 always		:= $(dtb-y)
 subdir-y	:= $(dts-dirs)
